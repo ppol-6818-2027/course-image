@@ -1,0 +1,14 @@
+{
+  // Builds the PPOL 6818 course image: R, RStudio Server, Quarto, Node, the
+  // GitHub CLI, the ppol6818 package and both coding agents, all baked in so
+  // a new codespace only downloads it. Built by .github/workflows/build.yml.
+  "name": "PPOL 6818 course image",
+  "image": "ghcr.io/rocker-org/devcontainer/r-ver:4",
+  "features": {
+    "ghcr.io/rocker-org/devcontainer-features/rstudio-server:0": { "singleUser": true, "version": "stable" },
+    "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": { "version": "lts" },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "./course-tools": {}
+  }
+}
