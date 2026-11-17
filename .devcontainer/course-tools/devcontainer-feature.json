@@ -1,8 +1,8 @@
 {
   "id": "course-tools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "PPOL 6818 course tools",
-  "description": "The ppol6818 R package and its dependencies, Codex and Claude Code.",
+  "description": "The ppol6818 R package and its dependencies, Codex and Claude Code, and the RStudio start script for codespaces.",
   "installsAfter": [
     "ghcr.io/rocker-org/devcontainer-features/rstudio-server",
     "ghcr.io/devcontainers/features/node"

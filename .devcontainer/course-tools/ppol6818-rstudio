@@ -1,0 +1,31 @@
+#!/bin/bash
+# Start RStudio Server in a PPOL 6818 codespace, on the course repository's
+# project. Each course repository's devcontainer.json runs it as its
+# postAttachCommand, from the repository folder; it is safe to rerun.
+ws="${1:-$PWD}"
+
+# RStudio starts R with a clean environment, so R would not see the
+# codespace's GitHub sign-in, its name, or the student's Codespaces secrets.
+# Hand them over in ~/.Renviron (course repositories have no .Renviron of
+# their own, so R reads this one), readable only by the student.
+umask 077
+tmp=$(mktemp ~/.Renviron.XXXXXX)
+for v in CODESPACES CODESPACE_NAME GITHUB_USER GITHUB_REPOSITORY GITHUB_TOKEN \
+         GITHUB_SERVER_URL GITHUB_API_URL GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN \
+         IPUMS_API_KEY KOBO_API_TOKEN KOBO_SERVER PATH; do
+  [ -n "${!v:-}" ] && printf '%s="%s"\n' "$v" "${!v}" >> "$tmp"
+done
+mv "$tmp" ~/.Renviron
+
+# Open the repository's project when RStudio starts.
+proj=$(ls "$ws"/*.Rproj 2>/dev/null | head -1)
+if [ -n "$proj" ]; then
+  mkdir -p ~/.local/share/rstudio/projects_settings
+  echo "$proj" > ~/.local/share/rstudio/projects_settings/next-session-project
+fi
+
+# RStudio runs in this terminal, which keeps it alive; the codespace forwards
+# port 8787 and opens it in a browser tab.
+pgrep -u "$(id -u)" -x rserver >/dev/null && exit 0
+export USER=$(id -un)
+exec rserver
