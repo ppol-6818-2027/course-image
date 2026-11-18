@@ -24,8 +24,29 @@ if [ -n "$proj" ]; then
   echo "$proj" > ~/.local/share/rstudio/projects_settings/next-session-project
 fi
 
-# RStudio runs in this terminal, which keeps it alive; the codespace forwards
-# port 8787 and opens it in a browser tab.
-pgrep -u "$(id -u)" -x rserver >/dev/null && exit 0
-export USER=$(id -un)
-exec rserver
+# Start RStudio unless it is already running. It runs as a child of this
+# script; the codespace forwards port 8787 to a browser tab.
+if ! pgrep -u "$(id -u)" -x rserver >/dev/null; then
+  USER=$(id -un) rserver &
+  sleep 3
+fi
+
+# Keep the codespace awake while R is open. GitHub stops an idle codespace
+# (30 minutes by default) and counts only typing and terminal output as
+# activity, not RStudio's browser traffic, so a student working only in
+# RStudio would be stopped mid-work. While an R session is alive this
+# terminal prints a line every 4 minutes. RStudio suspends an R session left
+# idle for 30 minutes (rsession.conf, set by the course image), the lines
+# stop, and the codespace then stops on its own timeout, so an abandoned
+# codespace does not use up the student's hours. One heartbeat per codespace.
+exec 9>/tmp/ppol6818-heartbeat.lock
+if flock -n 9; then
+  while pgrep -u "$(id -u)" -x rserver >/dev/null; do
+    if pgrep -u "$(id -u)" -x rsession >/dev/null; then
+      printf '\r%s  R is open in RStudio; keeping this codespace awake.' "$(date +%H:%M)"
+    fi
+    sleep 240
+  done
+else
+  wait
+fi
