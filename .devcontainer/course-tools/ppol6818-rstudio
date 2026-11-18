@@ -44,12 +44,18 @@ fi
 # timeout instead of using up the student's hours. RStudio also suspends an
 # R session left idle for 30 minutes (rsession.conf, set by the course
 # image). One heartbeat per codespace.
+# The student's repositories are the folders beside this one: the lab
+# repository the codespace was created on and the pair's project repository
+# the course package clones next to it (/workspaces/.codespaces, GitHub's own,
+# is left out).
 window="-30 minutes"
 working() {
-  local f
-  f=$(find "$ws" \( -name .git -o -name .Rproj.user \) -prune \
+  local f repos
+  repos=$(find "$(dirname "$ws")" -mindepth 1 -maxdepth 1 -type d ! -name '.*' 2>/dev/null)
+  [ -z "$repos" ] && repos="$ws"
+  f=$(find $repos \( -name .git -o -name .Rproj.user \) -prune \
         -o -newermt "$window" -type f -print -quit 2>/dev/null)
-  [ -z "$f" ] && f=$(find "$ws"/.Rproj.user/*/sources ~/.local/share/rstudio/sources \
+  [ -z "$f" ] && f=$(find $(printf '%s/.Rproj.user/*/sources ' $repos) ~/.local/share/rstudio/sources \
         -newermt "$window" -type f ! -name 'lock_file' ! -name '.rstudio-lock*' \
         -print -quit 2>/dev/null)
   [ -z "$f" ] && f=$(find ~/.local/share/rstudio/history_database \
