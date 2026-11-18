@@ -27,6 +27,14 @@ fi
 # Start RStudio unless it is already running. It runs as a child of this
 # script; the codespace forwards port 8787 to a browser tab.
 if ! pgrep -u "$(id -u)" -x rserver >/dev/null; then
+  # First bring the course package up to date from GitHub, and only it: its
+  # dependencies stay at the image's dated CRAN snapshot (install.sh), so a
+  # fix to the package reaches a codespace made weeks ago, in about ten
+  # seconds, without a new image. If GitHub cannot be reached, the copy in
+  # the image is used.
+  echo "Updating the ppol6818 package..."
+  timeout 120 Rscript -e 'pak::pkg_install("bbdaniels/ppol6818", dependencies = FALSE, ask = FALSE)' \
+    >/tmp/ppol6818-update.log 2>&1 || echo "Could not update ppol6818 (see /tmp/ppol6818-update.log); using the image's copy."
   USER=$(id -un) rserver &
   sleep 3
 fi
