@@ -35,24 +35,31 @@ fi
 # an idle codespace (30 minutes by default) and counts only typing and
 # terminal output as activity, not RStudio's browser traffic, so a student
 # working only in RStudio would be stopped mid-work. This terminal prints a
-# line every 4 minutes while an R session is alive and the student has
-# worked in the last 30 minutes: RStudio writes its own state (open
-# documents, unsaved edits, console history) under ~/.local/share/rstudio as
-# they work, and their files are in the repository folder. An RStudio tab
-# left open and untouched changes neither, so the lines stop and the
-# codespace stops on its own timeout instead of using up the student's
-# hours. RStudio also suspends an R session left idle for 30 minutes
-# (rsession.conf, set by the course image). One heartbeat per codespace.
+# line every 4 minutes while the student has worked in the last 30 minutes:
+# saved a file in the repository, typed in an open document (RStudio keeps
+# unsaved text under .Rproj.user/*/sources) or run a console command (its
+# history database). RStudio's own bookkeeping, which goes on while a tab
+# sits open and untouched (lock files, the console buffer, session state),
+# does not count, so a forgotten tab lets the codespace stop on its own
+# timeout instead of using up the student's hours. RStudio also suspends an
+# R session left idle for 30 minutes (rsession.conf, set by the course
+# image). One heartbeat per codespace.
+window="-30 minutes"
 working() {
-  [ -n "$(find ~/.local/share/rstudio "$ws" \( -path "$ws/.git" \
-          -o -path ~/.local/share/rstudio/log \
-          -o -path ~/.local/share/rstudio/projects_settings \) -prune \
-          -o -newermt '-30 minutes' -type f -print -quit 2>/dev/null)" ]
+  local f
+  f=$(find "$ws" \( -name .git -o -name .Rproj.user \) -prune \
+        -o -newermt "$window" -type f -print -quit 2>/dev/null)
+  [ -z "$f" ] && f=$(find "$ws"/.Rproj.user/*/sources ~/.local/share/rstudio/sources \
+        -newermt "$window" -type f ! -name 'lock_file' ! -name '.rstudio-lock*' \
+        -print -quit 2>/dev/null)
+  [ -z "$f" ] && f=$(find ~/.local/share/rstudio/history_database \
+        -newermt "$window" -print -quit 2>/dev/null)
+  [ -n "$f" ]
 }
 exec 9>/tmp/ppol6818-heartbeat.lock
 if flock -n 9; then
   while pgrep -u "$(id -u)" -x rserver >/dev/null; do
-    if pgrep -u "$(id -u)" -x rsession >/dev/null && working; then
+    if working; then
       printf '\r%s  You are working in RStudio; keeping this codespace awake.' "$(date +%H:%M)"
     fi
     sleep 240
