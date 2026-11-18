@@ -31,19 +31,29 @@ if ! pgrep -u "$(id -u)" -x rserver >/dev/null; then
   sleep 3
 fi
 
-# Keep the codespace awake while R is open. GitHub stops an idle codespace
-# (30 minutes by default) and counts only typing and terminal output as
-# activity, not RStudio's browser traffic, so a student working only in
-# RStudio would be stopped mid-work. While an R session is alive this
-# terminal prints a line every 4 minutes. RStudio suspends an R session left
-# idle for 30 minutes (rsession.conf, set by the course image), the lines
-# stop, and the codespace then stops on its own timeout, so an abandoned
-# codespace does not use up the student's hours. One heartbeat per codespace.
+# Keep the codespace awake while the student is working in R. GitHub stops
+# an idle codespace (30 minutes by default) and counts only typing and
+# terminal output as activity, not RStudio's browser traffic, so a student
+# working only in RStudio would be stopped mid-work. This terminal prints a
+# line every 4 minutes while an R session is alive and the student has
+# worked in the last 30 minutes: RStudio writes its own state (open
+# documents, unsaved edits, console history) under ~/.local/share/rstudio as
+# they work, and their files are in the repository folder. An RStudio tab
+# left open and untouched changes neither, so the lines stop and the
+# codespace stops on its own timeout instead of using up the student's
+# hours. RStudio also suspends an R session left idle for 30 minutes
+# (rsession.conf, set by the course image). One heartbeat per codespace.
+working() {
+  [ -n "$(find ~/.local/share/rstudio "$ws" \( -path "$ws/.git" \
+          -o -path ~/.local/share/rstudio/log \
+          -o -path ~/.local/share/rstudio/projects_settings \) -prune \
+          -o -newermt '-30 minutes' -type f -print -quit 2>/dev/null)" ]
+}
 exec 9>/tmp/ppol6818-heartbeat.lock
 if flock -n 9; then
   while pgrep -u "$(id -u)" -x rserver >/dev/null; do
-    if pgrep -u "$(id -u)" -x rsession >/dev/null; then
-      printf '\r%s  R is open in RStudio; keeping this codespace awake.' "$(date +%H:%M)"
+    if pgrep -u "$(id -u)" -x rsession >/dev/null && working; then
+      printf '\r%s  You are working in RStudio; keeping this codespace awake.' "$(date +%H:%M)"
     fi
     sleep 240
   done
