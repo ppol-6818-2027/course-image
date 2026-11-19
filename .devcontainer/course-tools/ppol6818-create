@@ -1,6 +1,26 @@
 #!/bin/bash
 # Runs once when a PPOL 6818 codespace is made (the feature's onCreateCommand),
 # as the student, before VS Code connects.
+# The agents keep their sign-ins in the home folder (~/.claude,
+# ~/.claude.json, ~/.codex), which a rebuild replaces; only /workspaces
+# survives it. Each is kept in /workspaces/.ppol6818, outside every
+# repository, and linked from the home folder, so a rebuild keeps the
+# student signed in. The first time, whatever the home folder holds moves
+# there.
+keep=/workspaces/.ppol6818
+mkdir -p "$keep"
+chmod 700 "$keep"
+for f in .claude .claude.json .codex; do
+  if [ ! -e "$keep/$f" ] && [ -e ~/"$f" ] && [ ! -L ~/"$f" ]; then
+    mv ~/"$f" "$keep/$f"
+  fi
+  case $f in
+    *.json) [ -e "$keep/$f" ] || echo '{}' > "$keep/$f"; chmod 600 "$keep/$f" ;;
+    *) mkdir -p "$keep/$f" ;;
+  esac
+  rm -rf "${HOME:?}/$f"
+  ln -s "$keep/$f" ~/"$f"
+done
 # Codespaces' first-run notice would fill the first R console.
 mkdir -p ~/.config/vscode-dev-containers
 touch ~/.config/vscode-dev-containers/first-run-notice-already-displayed
