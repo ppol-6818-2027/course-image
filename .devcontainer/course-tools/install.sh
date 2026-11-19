@@ -16,7 +16,7 @@ site=/usr/local/lib/R/etc/Rprofile.site
 grep -v '^options(repos' "$site" 2>/dev/null > /tmp/Rprofile.site || true
 echo "options(repos = c(CRAN = '${repo}'), download.file.method = 'libcurl')" >> /tmp/Rprofile.site
 install -m 644 /tmp/Rprofile.site "$site" && rm /tmp/Rprofile.site
-Rscript -e 'install.packages(c("pak", "data.table", "fixest"))
+Rscript -e 'install.packages(c("pak", "data.table", "fixest", "ggplot2", "modelsummary", "tinytable"))
 pak::pak("bbdaniels/ppol6818", ask = FALSE)'
 # The start script (ppol6818-rstudio) updates the ppol6818 package, and only
 # it, each time a codespace starts, as the student: give the student its
