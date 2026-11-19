@@ -50,7 +50,8 @@ const focusAgent = async () => {
 // start) asks for a newer image than this codespace runs: its
 // codespace/image.json against the image-version file the image was built
 // with. A rebuild keeps /workspaces and resets the rest, so it is the
-// student's choice, once per window.
+// student's choice, once per window. It must be a Full Rebuild: a plain
+// Rebuild reuses the cached old image (tested 2026-11-19).
 const fs = require('fs');
 const IMAGE = '/usr/local/share/ppol6818/image-version';
 const WANTED = '/usr/local/lib/R/site-library/ppol6818/codespace/image.json';
@@ -69,11 +70,11 @@ const offerRebuild = async () => {
   offered = true;
   const go = 'Rebuild now';
   const pick = await vscode.window.showWarningMessage(
-    `Course update: ${wanted.note || 'the course codespace has new software.'} Rebuild your codespace to get it: about five minutes. Your files are kept, including work not yet committed; afterwards, sign in to your agent again and click Course setup.`,
+    `Course update: ${wanted.note || 'the course codespace has new software.'} Rebuild your codespace to get it: click Rebuild now, then Full Rebuild (a plain Rebuild keeps the old software). It takes about five minutes. Your files are kept, including work not yet committed; afterwards, sign in to your agent again and click Course setup.`,
     go, 'Later');
   if (pick !== go) return;
   try { await vscode.commands.executeCommand('github.codespaces.rebuildEnvironment'); }
-  catch (e) { vscode.window.showInformationMessage('Press Cmd+Shift+P (Ctrl+Shift+P on Windows), type Rebuild Container and press Enter.'); }
+  catch (e) { vscode.window.showInformationMessage('Press Cmd+Shift+P (Ctrl+Shift+P on Windows), type Rebuild Container, press Enter and choose Full Rebuild.'); }
 };
 
 exports.activate = async context => {
