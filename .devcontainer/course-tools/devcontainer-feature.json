@@ -1,6 +1,6 @@
 {
   "id": "course-tools",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "name": "PPOL 6818 course tools",
   "description": "The ppol6818 R package and its dependencies, Claude Code and Codex, and the PPOL 6818 codespace in VS Code: its settings and extensions, the R console, and the course extension.",
   "installsAfter": [
@@ -8,7 +8,6 @@
     "ghcr.io/devcontainers/features/node"
   ],
   "onCreateCommand": "ppol6818-create",
-  "postAttachCommand": "ppol6818-start",
   "customizations": {
     "vscode": {
       "extensions": [

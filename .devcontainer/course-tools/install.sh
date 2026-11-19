@@ -27,11 +27,10 @@ chown -R rstudio:staff /usr/local/lib/R/site-library/ppol6818
 npm install -g --allow-scripts=@anthropic-ai/claude-code @openai/codex @anthropic-ai/claude-code
 here=$(cd "$(dirname "$0")" && pwd)
 # The codespace in VS Code: the R console (the default terminal), the steps
-# run when a codespace is made and each time VS Code connects (this
-# feature's onCreateCommand and postAttachCommand), and the course's own VS
-# Code extensions, which ppol6818-start installs: the course extension and
-# the course build of the PDF viewer (see make-vsix.py).
-for f in ppol6818-console ppol6818-create ppol6818-start; do
+# run when a codespace is made (this feature's onCreateCommand), and the
+# course's own VS Code extensions, which ppol6818-create unpacks: the course
+# extension and the course build of the PDF viewer (see make-vsix.py).
+for f in ppol6818-console ppol6818-create; do
   install -m 755 "$here/$f" /usr/local/bin/$f
 done
 mkdir -p /usr/local/share/ppol6818

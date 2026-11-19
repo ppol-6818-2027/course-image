@@ -29,3 +29,23 @@ if '[projects."/workspaces"]' not in text:
     with open(f, "a") as out:
         out.write('\n[projects."/workspaces"]\ntrust_level = "trusted"\n')
 PY
+# The course's own VS Code extensions (the course panel and the PDF viewer)
+# ship in the image as .vsix files, which no devcontainer setting can install.
+# Unpacked into the VS Code server's extension folder before the server first
+# starts, they are found and registered with the marketplace extensions. (A
+# postAttachCommand installing them never ran in a codespace: tested
+# 2026-11-18.)
+ext=~/.vscode-remote/extensions
+mkdir -p "$ext"
+for vsix in /usr/local/share/ppol6818/*.vsix; do
+  id=$(basename "$vsix" .vsix)
+  tmp=$(mktemp -d)
+  if unzip -q "$vsix" 'extension/*' -d "$tmp"; then
+    rm -rf "${ext:?}/$id"
+    mv "$tmp/extension" "$ext/$id"
+  else
+    echo "Could not unpack $(basename "$vsix")" >&2
+  fi
+  rm -rf "$tmp"
+done
+exit 0
