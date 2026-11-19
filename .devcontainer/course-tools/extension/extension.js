@@ -2,7 +2,8 @@
 // three columns in VS Code's own arrangement: files on the left, run.R over
 // the R console in the middle, Claude Code (with Codex as its second tab) on
 // the right. It closes the Welcome page, makes sure there is one R console,
-// and brings Claude Code forward. Its panel in the file list holds the course
+// brings Claude Code forward, and offers a rebuild when the course needs a
+// newer image. Its panel in the file list holds the course
 // commands, which run in the R console.
 const vscode = require('vscode');
 
@@ -45,6 +46,36 @@ const focusAgent = async () => {
   }
 };
 
+// Offer a rebuild when the course package (updated by the R console at each
+// start) asks for a newer image than this codespace runs: its
+// codespace/image.json against the image-version file the image was built
+// with. A rebuild keeps /workspaces and resets the rest, so it is the
+// student's choice, once per window.
+const fs = require('fs');
+const IMAGE = '/usr/local/share/ppol6818/image-version';
+const WANTED = '/usr/local/lib/R/site-library/ppol6818/codespace/image.json';
+const older = (a, b) => {
+  const x = a.split('.').map(Number), y = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) < (y[i] || 0);
+  return false;
+};
+let offered = false;
+const offerRebuild = async () => {
+  if (offered) return;
+  let wanted, have;
+  try { wanted = JSON.parse(fs.readFileSync(WANTED, 'utf8')); } catch (e) { return; }
+  try { have = fs.readFileSync(IMAGE, 'utf8').trim(); } catch (e) { have = '0'; }
+  if (!wanted.version || !older(have, wanted.version)) return;
+  offered = true;
+  const go = 'Rebuild now';
+  const pick = await vscode.window.showWarningMessage(
+    `Course update: ${wanted.note || 'the course codespace has new software.'} Rebuild your codespace to get it: about five minutes. Your files are kept, including work not yet committed; afterwards, sign in to your agent again and click Course setup.`,
+    go, 'Later');
+  if (pick !== go) return;
+  try { await vscode.commands.executeCommand('github.codespaces.rebuildEnvironment'); }
+  catch (e) { vscode.window.showInformationMessage('Press Cmd+Shift+P (Ctrl+Shift+P on Windows), type Rebuild Container and press Enter.'); }
+};
+
 exports.activate = async context => {
   context.subscriptions.push(
     vscode.commands.registerCommand('ppol6818.setup', inConsole('ppol6818::setup()')),
@@ -59,6 +90,10 @@ exports.activate = async context => {
   const t = await rConsole();
   t.show(false);
   focusAgent();
+  // The R console updates the package a minute or two after startup.
+  offerRebuild();
+  const timer = setInterval(offerRebuild, 60000);
+  context.subscriptions.push({ dispose: () => clearInterval(timer) });
 };
 
 exports.deactivate = () => {};

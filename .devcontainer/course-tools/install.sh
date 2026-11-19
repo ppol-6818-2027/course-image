@@ -34,6 +34,11 @@ for f in ppol6818-console ppol6818-create; do
   install -m 755 "$here/$f" /usr/local/bin/$f
 done
 mkdir -p /usr/local/share/ppol6818
+# The image's version (this feature's), which the course extension compares
+# with the version the course package asks for (inst/codespace/image.json in
+# bbdaniels/ppol6818): when the package asks for a newer one, the extension
+# offers the student a rebuild.
+python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$here/devcontainer-feature.json" > /usr/local/share/ppol6818/image-version
 ver=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$here/extension/package.json")
 python3 "$here/make-vsix.py" pack "$here/extension" "/usr/local/share/ppol6818/ppol6818.course-$ver.vsix"
 pdf_version=0.2.7

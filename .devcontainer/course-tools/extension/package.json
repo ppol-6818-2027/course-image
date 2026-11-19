@@ -3,7 +3,7 @@
   "publisher": "ppol6818",
   "displayName": "PPOL 6818",
   "description": "The PPOL 6818 codespace: the working layout at startup, and the course commands (Course setup, Build minisite, Check).",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "license": "MIT",
   "engines": { "vscode": "^1.90.0" },
   "main": "./extension.js",

@@ -3,16 +3,19 @@
 # Code (the course settings in devcontainer-feature.json), so every terminal
 # the student opens is R, in the codespace's own course repository, whose
 # .Rprofile connects it to the course agents. Once per codespace start it
-# first brings the course package up to date from GitHub, and only it, so a
-# fix reaches students without a new image, and registers the R console
+# first brings the course package up to date from GitHub, so a fix reaches
+# students without a new image, and installs any R package it now needs that
+# the codespace lacks (from the image's CRAN snapshot; packages already there
+# are not upgraded), so a package added to its Imports between weeks reaches
+# every codespace at its next start. Then it registers the R console
 # connector with both agents.
 ws="/workspaces/${RepositoryName:-$(basename "${GITHUB_REPOSITORY:-}")}"
 cd "$ws" 2>/dev/null || cd /workspaces || exit 1
 (
   flock 9
   if [ ! -e /tmp/ppol6818-updated ]; then
-    echo "Updating the course package..."
-    timeout 120 Rscript -e 'pak::pkg_install("bbdaniels/ppol6818", dependencies = FALSE, ask = FALSE)' >/tmp/ppol6818-update.log 2>&1 \
+    echo "Updating the course package (a minute or two when it brings new R packages)..."
+    timeout 600 Rscript -e 'pak::pkg_install("bbdaniels/ppol6818", upgrade = FALSE, ask = FALSE)' >/tmp/ppol6818-update.log 2>&1 \
       || echo "Could not update it (see /tmp/ppol6818-update.log); using the image's copy."
     Rscript -e 'ppol6818::connect_agents()' >>/tmp/ppol6818-update.log 2>&1
     touch /tmp/ppol6818-updated
