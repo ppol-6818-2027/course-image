@@ -1,0 +1,31 @@
+#!/bin/bash
+# Runs once when a PPOL 6818 codespace is made (the feature's onCreateCommand),
+# as the student, before VS Code connects.
+# Codespaces' first-run notice would fill the first R console.
+mkdir -p ~/.config/vscode-dev-containers
+touch ~/.config/vscode-dev-containers/first-run-notice-already-displayed
+# Both agents ask whether to trust a folder before they work in it. The
+# course repositories are the student's own, under /workspaces: trust them
+# up front, so neither agent asks on every window load.
+python3 - <<'PY'
+import json, os
+f = os.path.expanduser("~/.claude.json")
+try:
+    cfg = json.load(open(f))
+except (OSError, ValueError):
+    cfg = {}
+projects = cfg.setdefault("projects", {})
+folders = ["/workspaces"] + sorted(
+    os.path.join("/workspaces", d) for d in os.listdir("/workspaces")
+    if os.path.isdir(os.path.join("/workspaces", d)) and not d.startswith("."))
+for d in folders:
+    projects.setdefault(d, {})["hasTrustDialogAccepted"] = True
+json.dump(cfg, open(f, "w"), indent=2)
+os.chmod(f, 0o600)
+f = os.path.expanduser("~/.codex/config.toml")
+os.makedirs(os.path.dirname(f), exist_ok=True)
+text = open(f).read() if os.path.exists(f) else ""
+if '[projects."/workspaces"]' not in text:
+    with open(f, "a") as out:
+        out.write('\n[projects."/workspaces"]\ntrust_level = "trusted"\n')
+PY

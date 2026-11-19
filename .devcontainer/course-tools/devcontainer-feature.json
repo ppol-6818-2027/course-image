@@ -1,10 +1,125 @@
 {
   "id": "course-tools",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "name": "PPOL 6818 course tools",
-  "description": "The ppol6818 R package and its dependencies, Codex and Claude Code, and the RStudio start script for codespaces.",
+  "description": "The ppol6818 R package and its dependencies, Claude Code and Codex, and the PPOL 6818 codespace in VS Code: its settings and extensions, the R console, and the course extension.",
   "installsAfter": [
     "ghcr.io/rocker-org/devcontainer-features/rstudio-server",
     "ghcr.io/devcontainers/features/node"
-  ]
+  ],
+  "onCreateCommand": "ppol6818-create",
+  "postAttachCommand": "ppol6818-start",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "REditorSupport.r",
+        "quarto.quarto",
+        "anthropic.claude-code",
+        "openai.chatgpt"
+      ],
+      "settings": {
+        "chat.disableAIFeatures": true,
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 1000,
+        "workbench.activityBar.location": "top",
+        "workbench.statusBar.visible": false,
+        "workbench.layoutControl.enabled": false,
+        "window.commandCenter": false,
+        "editor.minimap.enabled": false,
+        "breadcrumbs.enabled": false,
+        "workbench.startupEditor": "none",
+        "workbench.tips.enabled": false,
+        "workbench.editor.enablePreview": false,
+        "workbench.secondarySideBar.defaultVisibility": "visible",
+        "terminal.integrated.defaultLocation": "view",
+        "r.rterm.linux": "/usr/local/bin/R",
+        "r.plot.useHttpgd": false,
+        "editor.fontSize": 14,
+        "editor.lineHeight": 22,
+        "workbench.colorTheme": "Light Modern",
+        "workbench.colorCustomizations": {
+          "contrastBorder": "#111111",
+          "focusBorder": "#ffd23f",
+          "foreground": "#1f2937",
+          "editor.background": "#ffffff",
+          "editor.foreground": "#1f2937",
+          "editorGroup.border": "#111111",
+          "editorGroupHeader.tabsBackground": "#e6f1ff",
+          "editorGroupHeader.tabsBorder": "#111111",
+          "tab.activeBackground": "#ffd23f",
+          "tab.activeForeground": "#041E42",
+          "tab.inactiveBackground": "#e6f1ff",
+          "tab.inactiveForeground": "#041E42",
+          "tab.border": "#111111",
+          "tab.activeBorderTop": "#111111",
+          "sideBar.background": "#e6f1ff",
+          "sideBar.foreground": "#041E42",
+          "sideBar.border": "#111111",
+          "sideBarTitle.foreground": "#041E42",
+          "sideBarSectionHeader.background": "#a9c9ff",
+          "sideBarSectionHeader.foreground": "#041E42",
+          "sideBarSectionHeader.border": "#111111",
+          "list.activeSelectionBackground": "#ffd23f",
+          "list.activeSelectionForeground": "#041E42",
+          "list.inactiveSelectionBackground": "#ffbe76",
+          "list.hoverBackground": "#a9c9ff",
+          "titleBar.activeBackground": "#041E42",
+          "titleBar.activeForeground": "#ffffff",
+          "titleBar.inactiveBackground": "#041E42",
+          "panel.background": "#e6f1ff",
+          "panel.border": "#111111",
+          "panelTitle.activeForeground": "#041E42",
+          "panelTitle.activeBorder": "#ff8fb1",
+          "panelSectionHeader.background": "#7ee0c3",
+          "terminal.background": "#ffffff",
+          "terminal.foreground": "#1f2937",
+          "terminalCursor.foreground": "#ff8fb1",
+          "button.background": "#ffd23f",
+          "button.foreground": "#041E42",
+          "button.border": "#111111",
+          "badge.background": "#ff8fb1",
+          "badge.foreground": "#041E42",
+          "editor.lineHighlightBackground": "#fff6d6",
+          "editorLineNumber.foreground": "#94a3b8",
+          "editorLineNumber.activeForeground": "#041E42",
+          "scrollbarSlider.background": "#a9c9ff88",
+          "widget.border": "#111111",
+          "input.border": "#111111",
+          "sash.hoverBorder": "#ff8fb1"
+        },
+        "r.sessionWatcher": false,
+        "workbench.editorAssociations": {
+          "*.pdf": "pdf.view"
+        },
+        "terminal.integrated.gpuAcceleration": "off",
+        "r.alwaysUseActiveTerminal": true,
+        "r.lsp.promptToInstall": false,
+        "terminal.integrated.profiles.linux": {
+          "R": {
+            "path": "ppol6818-console",
+            "icon": "terminal"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "R",
+        "terminal.integrated.automationProfile.linux": {
+          "path": "bash"
+        },
+        "terminal.integrated.enablePersistentSessions": false,
+        "files.exclude": {
+          "**/.git": true,
+          ".codespaces": true,
+          ".Renviron": true,
+          ".vscode": true,
+          "**/.Rproj.user": true,
+          "**/.quarto": true,
+          "**/*_files": true
+        },
+        "git.openRepositoryInParentFolders": "never",
+        "git.autoRepositoryDetection": "subFolders",
+        "r.lsp.diagnostics": false,
+        "remote.autoForwardPorts": false,
+        "workbench.welcomePage.walkthroughs.openOnInstall": false
+      }
+    }
+  }
 }

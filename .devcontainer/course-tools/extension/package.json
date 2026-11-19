@@ -1,0 +1,30 @@
+{
+  "name": "course",
+  "publisher": "ppol6818",
+  "displayName": "PPOL 6818",
+  "description": "The PPOL 6818 codespace: the working layout at startup, and the course commands (Course setup, Build minisite, Check).",
+  "version": "0.1.0",
+  "license": "MIT",
+  "engines": { "vscode": "^1.90.0" },
+  "main": "./extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "extensionKind": ["workspace"],
+  "contributes": {
+    "commands": [
+      { "command": "ppol6818.setup", "title": "Course setup", "category": "PPOL 6818" },
+      { "command": "ppol6818.buildSite", "title": "Build minisite", "category": "PPOL 6818" },
+      { "command": "ppol6818.check", "title": "Check setup", "category": "PPOL 6818" }
+    ],
+    "views": {
+      "explorer": [
+        { "id": "ppol6818.panel", "name": "PPOL 6818" }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "ppol6818.panel",
+        "contents": "[Course setup](command:ppol6818.setup)\n[Build minisite](command:ppol6818.buildSite)\n[Check setup](command:ppol6818.check)\nEach button runs its command in the R console below."
+      }
+    ]
+  }
+}

@@ -1,7 +1,10 @@
 {
-  // Builds the PPOL 6818 course image: R, RStudio Server, Quarto, Node, the
-  // GitHub CLI, the ppol6818 package and both coding agents, all baked in so
-  // a new codespace only downloads it. Built by .github/workflows/build.yml.
+  // Builds the PPOL 6818 course image: R, Quarto, Node, the GitHub CLI, the
+  // ppol6818 package, both coding agents and the course's VS Code setup
+  // (course-tools), all baked in so a new codespace only downloads it.
+  // RStudio Server stays until the VS Code codespace passes its end-to-end
+  // test. sshd lets the instructors reach a codespace with gh codespace ssh.
+  // Built by .github/workflows/build.yml.
   // R is held at 4.6 for the term, and its packages at one CRAN snapshot
   // (course-tools/install.sh), so no codespace differs from another.
   "name": "PPOL 6818 course image",
@@ -11,6 +14,7 @@
     "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {},
     "ghcr.io/devcontainers/features/node:1": { "version": "lts" },
     "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {},
     "./course-tools": {}
   }
 }
