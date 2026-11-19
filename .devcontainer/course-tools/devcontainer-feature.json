@@ -1,6 +1,6 @@
 {
   "id": "course-tools",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "name": "PPOL 6818 course tools",
   "description": "The ppol6818 R package and its dependencies, Claude Code and Codex, and the PPOL 6818 codespace in VS Code: its settings and extensions, the R console, and the course extension.",
   "installsAfter": [
@@ -118,7 +118,8 @@
         "git.autoRepositoryDetection": "subFolders",
         "r.lsp.diagnostics": false,
         "remote.autoForwardPorts": false,
-        "workbench.welcomePage.walkthroughs.openOnInstall": false
+        "workbench.welcomePage.walkthroughs.openOnInstall": false,
+        "extensions.ignoreRecommendations": true
       }
     }
   }
