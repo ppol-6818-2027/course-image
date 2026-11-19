@@ -31,8 +31,18 @@ const inConsole = code => async () => {
   t.sendText(code, true);
 };
 
-const quietly = async (cmd) => {
-  try { await vscode.commands.executeCommand(cmd); } catch (e) { /* the agent extension may not be installed yet */ }
+// Bring Claude Code forward. In a new codespace VS Code installs the agent
+// extensions about a minute after this one starts (tested 2026-11-18), so
+// wait up to three minutes for its view's command to exist.
+const AGENT = 'claudeVSCodeSidebarSecondary.focus';
+const focusAgent = async () => {
+  for (let i = 0; i < 90; i++) {
+    if ((await vscode.commands.getCommands(true)).includes(AGENT)) {
+      try { await vscode.commands.executeCommand(AGENT); } catch (e) { /* leave the layout as it is */ }
+      return;
+    }
+    await new Promise(r => setTimeout(r, 2000));
+  }
 };
 
 exports.activate = async context => {
@@ -48,7 +58,7 @@ exports.activate = async context => {
       if (t.label === 'Welcome' || t.label === 'Walkthrough') await vscode.window.tabGroups.close(t);
   const t = await rConsole();
   t.show(false);
-  await quietly('claudeVSCodeSidebarSecondary.focus');
+  focusAgent();
 };
 
 exports.deactivate = () => {};
