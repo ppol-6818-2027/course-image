@@ -39,6 +39,9 @@ mkdir -p /usr/local/share/ppol6818
 # bbdaniels/ppol6818): when the package asks for a newer one, the extension
 # offers the student a rebuild.
 python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$here/devcontainer-feature.json" > /usr/local/share/ppol6818/image-version
+# The marketplace extensions the feature lists, for the course extension to
+# reinstall when VS Code has not (it does not after a rebuild).
+python3 -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1]))["customizations"]["vscode"]["extensions"]))' "$here/devcontainer-feature.json" > /usr/local/share/ppol6818/extensions.json
 ver=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$here/extension/package.json")
 python3 "$here/make-vsix.py" pack "$here/extension" "/usr/local/share/ppol6818/ppol6818.course-$ver.vsix"
 pdf_version=0.2.7

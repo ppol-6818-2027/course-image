@@ -77,6 +77,25 @@ const offerRebuild = async () => {
   catch (e) { vscode.window.showInformationMessage('Press Cmd+Shift+P (Ctrl+Shift+P on Windows), type Rebuild Container, press Enter and choose Full Rebuild.'); }
 };
 
+// VS Code installs the extensions the course image lists when a codespace is
+// made, but not after a rebuild, which empties the home folder they live in
+// (seen 2026-11-19: after a Full Rebuild only the course's own two were
+// there, and the agent panel was gone). Install whichever are missing.
+const ensureExtensions = async () => {
+  let ids;
+  try { ids = JSON.parse(fs.readFileSync('/usr/local/share/ppol6818/extensions.json', 'utf8')); } catch (e) { return; }
+  const missing = ids.filter(id => !vscode.extensions.getExtension(id));
+  if (!missing.length) return;
+  await vscode.window.withProgress(
+    { location: vscode.ProgressLocation.Notification, title: 'Installing the course extensions (about a minute)' },
+    async () => {
+      for (const id of missing) {
+        try { await vscode.commands.executeCommand('workbench.extensions.installExtension', id); }
+        catch (e) { console.error(`Could not install ${id}: ${e}`); }
+      }
+    });
+};
+
 exports.activate = async context => {
   context.subscriptions.push(
     vscode.commands.registerCommand('ppol6818.setup', inConsole('ppol6818::setup()')),
@@ -88,6 +107,7 @@ exports.activate = async context => {
   for (const g of vscode.window.tabGroups.all)
     for (const t of g.tabs)
       if (t.label === 'Welcome' || t.label === 'Walkthrough') await vscode.window.tabGroups.close(t);
+  await ensureExtensions();
   const t = await rConsole();
   t.show(false);
   focusAgent();
