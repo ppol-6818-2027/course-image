@@ -18,6 +18,9 @@ echo "options(repos = c(CRAN = '${repo}'), download.file.method = 'libcurl')" >>
 install -m 644 /tmp/Rprofile.site "$site" && rm /tmp/Rprofile.site
 Rscript -e 'install.packages(c("pak", "data.table", "fixest", "ggplot2", "modelsummary", "tinytable"))
 pak::pak("bbdaniels/ppol6818", ask = FALSE)'
+# The causal diagrams of the week 3 lab. Through pak, which also installs the
+# system library igraph needs (libglpk), as install.packages() does not.
+Rscript -e 'pak::pkg_install(c("ggdag", "dagitty"), ask = FALSE)'
 # The R console (ppol6818-console) updates the ppol6818 package, and only
 # it, each time a codespace starts, as the student: give the student its
 # folder, and drop the installer's root-owned lock files, which would refuse
