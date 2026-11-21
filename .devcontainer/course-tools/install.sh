@@ -21,6 +21,8 @@ pak::pak("bbdaniels/ppol6818", ask = FALSE)'
 # The causal diagrams of the week 3 lab. Through pak, which also installs the
 # system library igraph needs (libglpk), as install.packages() does not.
 Rscript -e 'pak::pkg_install(c("ggdag", "dagitty"), ask = FALSE)'
+# Reading XLSForms (KoboToolbox forms) in the week 7 and 8 labs.
+Rscript -e 'install.packages("readxl")'
 # The R console (ppol6818-console) updates the ppol6818 package, and only
 # it, each time a codespace starts, as the student: give the student its
 # folder, and drop the installer's root-owned lock files, which would refuse
